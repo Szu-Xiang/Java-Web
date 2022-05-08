@@ -23,21 +23,37 @@ public class Test {
         Class.forName("com.mysql.jdbc.Driver");
 
         //2.2 获取连接对象
-        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/day1601?useSSL=false&serverTimezone=UTC", "root", "99a/aa/a");
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/day1601?allowPublicKeyRetrieval=true&useSSL=false&useSSL=false&serverTimezone=UTC", "root", "99a/aa/a");
 
-        //2.3 获取statement执行者对象 (会出现问题，会用PreparedStatement对象解决)
+        //2.3：获取Statement执行者对象
         Statement statement = connection.createStatement();
 
-        //2.4 执行查询sql语句，添加where条件
-        ResultSet resultSet = statement.executeQuery("select * form user where username = '" + username + "' and password = '" + password + " ' ");
+        //2.4：执行查询sql语句 添加where条件
+        ResultSet rs = statement.executeQuery("select * from user where username='" + username + "' and password='" + password + "'");
+        //2.5：处理结果  【将查询到的结果集封装到对象中】
+        User user = null;
 
-        //2.5 处理结果 将查询到的结果集封装到对象中（有也就一条记录）
+        //如果根据用户名和密码查询到存在的记录了就封装到User对象中
+        while (rs.next()){
+            user = new User();
+            user.setId(rs.getInt("id"));
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password"));
+            user.setNickname(rs.getString("nickname"));
+        }
 
+        //2.6：关闭对象 释放资源
+        rs.close();
+        statement.close();
+        connection.close();
 
-        //2.6 关闭对象 释放资源
+        //3.判断用户是否登录成功  user==null：登录失败  user！=null：登录成功
+        if(user==null){
+            System.out.println("登录失败！");
+        }else{
+            System.out.println("登录成功！");
+        }
 
-        //3. 判断对象是否登录成功 user == null，登录失败
-        //                     user != null 登录成功
     }
 
 }
